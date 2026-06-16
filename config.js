@@ -3,9 +3,9 @@ window.CONFIG = {
 
   googleSheet: {
     playersCsvUrl:
-      "https://docs.google.com/spreadsheets/d/1m5vHG6Ntd0_dZqJL5kfTOHgeJoUbsx1uflvjpyI8NC4/gviz/tq?tqx=out:csv&sheet=players",
+      "https://docs.google.com/spreadsheets/d/1tedq0LdTcXYDpmok33pqM3XvbPYS2Bvih6LFUM4PMmc/gviz/tq?tqx=out:csv&sheet=players",
     matchesCsvUrl:
-      "https://docs.google.com/spreadsheets/d/1m5vHG6Ntd0_dZqJL5kfTOHgeJoUbsx1uflvjpyI8NC4/gviz/tq?tqx=out:csv&sheet=matches",
+      "https://docs.google.com/spreadsheets/d/1tedq0LdTcXYDpmok33pqM3XvbPYS2Bvih6LFUM4PMmc/gviz/tq?tqx=out:csv&sheet=matches",
   },
 
   fallback: {
@@ -19,3 +19,5 @@ window.CONFIG = {
     kFactor: 32,
   },
 };
+
+
