@@ -1,16 +1,13 @@
-# Court Kings — Tennis Friends Ranking
+# MatchPoint League — Court Kings
 
-Landing page statica per classifica tennis tra amici con calcolo Elo lato browser.
-
-MatchPoint League è la lega tennis tra amici dove ogni partita aggiorna classifica, statistiche e rivalità. Un modo semplice e competitivo per scoprire chi comanda davvero il campo.
+Landing page statica con ranking Elo tennis tra amici, pubblicabile su GitHub Pages.
 
 ## Stack
 
 - HTML
 - CSS
 - JavaScript vanilla
-- JSON statici
-- GitHub Pages
+- Google Sheet (CSV pubblici) + fallback JSON locale
 
 ## Struttura progetto
 
@@ -19,64 +16,107 @@ MatchPoint League è la lega tennis tra amici dove ogni partita aggiorna classif
 ├── index.html
 ├── style.css
 ├── app.js
+├── config.js
 ├── README.md
 ├── data/
 │   ├── players.json
 │   └── matches.json
 └── assets/
     ├── logo.svg
-    └── avatars/
+    ├── avatars/
+    └── icons/
 ```
 
-## Dati
+## Deploy GitHub Pages
 
-### `data/players.json`
-
-Campi obbligatori:
-
-- `id`
-- `name`
-- `initialRating` (se assente usa 1500)
-
-### `data/matches.json`
-
-Campi obbligatori:
-
-- `id`
-- `date` (`YYYY-MM-DD`)
-- `playerA`
-- `playerB`
-- `winner`
-- `score`
-
-## Aggiornare risultati
-
-1. Apri `data/matches.json`.
-2. Aggiungi una nuova partita.
-3. Commit e push su `main`.
-4. GitHub Pages aggiorna automaticamente il sito.
-
-Esempio commit:
-
-```text
-Add Marco vs Luca result
-```
-
-## Deploy su GitHub Pages
-
-1. Vai su **Settings → Pages** del repository.
-2. Imposta:
+1. Vai in **Settings → Pages** del repository.
+2. Seleziona:
    - **Branch:** `main`
    - **Folder:** `/root`
 3. Salva e attendi l’URL pubblico.
 
-## Preview locale (importante)
+## Configurazione sorgente dati
 
-Per leggere i file JSON il browser richiede un server HTTP. Non aprire `index.html` con doppio click (`file://`).
+Modifica `config.js`:
+
+```js
+window.CONFIG = {
+  dataSource: "google-sheet", // "google-sheet" | "local-json"
+  googleSheet: {
+    playersCsvUrl: "URL_CSV_PLAYERS",
+    matchesCsvUrl: "URL_CSV_MATCHES",
+  },
+  fallback: {
+    enabled: true,
+    playersJsonUrl: "./data/players.json",
+    matchesJsonUrl: "./data/matches.json",
+  },
+  elo: {
+    defaultRating: 1500,
+    kFactor: 32,
+  },
+};
+```
+
+### Come ottenere URL CSV da Google Sheet
+
+1. Crea uno Sheet con tab `players` e `matches`.
+2. **File → Share → Publish to web**.
+3. Pubblica ogni tab in formato CSV.
+4. Incolla i 2 URL in `config.js`.
+
+## Formato tab `players`
+
+Colonne consigliate:
+
+```text
+id,name,nickname,initialRating,avatar,hand,favoriteSurface,active
+```
+
+Obbligatorie: `id`, `name`, `initialRating`.
+
+## Formato tab `matches`
+
+Colonne consigliate:
+
+```text
+id,date,playerA,playerB,winner,score,surface,location,notes,format,tournament
+```
+
+Obbligatorie: `id`, `date`, `playerA`, `playerB`, `winner`, `score`.
+
+## Aggiungere una nuova partita
+
+Con `dataSource: "google-sheet"`:
+
+1. Apri Google Sheet.
+2. Tab `matches`.
+3. Aggiungi una riga.
+4. Ricarica la pagina.
+
+Con `dataSource: "local-json"`:
+
+1. Modifica `data/matches.json`.
+2. Commit e push.
+
+## Fallback JSON
+
+Se `dataSource` è `google-sheet` e il CSV non è raggiungibile o non valido:
+
+- con `fallback.enabled: true` usa i JSON locali (`data/*.json`);
+- con `fallback.enabled: false` mostra errore e non renderizza la classifica.
+
+## Errori comuni
+
+- **Sheet non raggiungibile / URL non impostati:** messaggio "Impossibile caricare i dati da Google Sheet".
+- **Dati non validi:** messaggio su colonne/valori da correggere.
+- **Apertura locale con doppio click (`file://`):** avvia server HTTP.
+
+## Preview locale
 
 ```bash
 cd /percorso/progetto
 python3 -m http.server 8080
 ```
 
-Poi apri `http://localhost:8080`.
+Apri `http://localhost:8080`.

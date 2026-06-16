@@ -1,5 +1,18 @@
-const K_FACTOR = 32;
-const DEFAULT_RATING = 1500;
+const CONFIG = window.CONFIG ?? {
+  dataSource: "local-json",
+  fallback: {
+    enabled: true,
+    playersJsonUrl: "./data/players.json",
+    matchesJsonUrl: "./data/matches.json",
+  },
+  elo: {
+    defaultRating: 1500,
+    kFactor: 32,
+  },
+};
+
+const K_FACTOR = Number(CONFIG.elo?.kFactor ?? 32);
+const DEFAULT_RATING = Number(CONFIG.elo?.defaultRating ?? 1500);
 const RECENT_MATCHES_LIMIT = 8;
 
 const elements = {
@@ -24,13 +37,88 @@ const formatDate = (date) =>
 const roundRating = (value) => Math.round(value);
 
 function setStatus(message, type = "info") {
+  if (!elements.statusBanner) return;
   elements.statusBanner.textContent = message;
   elements.statusBanner.className = `status-banner show ${type}`;
 }
 
 function clearStatus() {
+  if (!elements.statusBanner) return;
   elements.statusBanner.className = "status-banner";
   elements.statusBanner.textContent = "";
+}
+
+function createError(code, message) {
+  const error = new Error(message);
+  error.code = code;
+  return error;
+}
+
+function sanitizeCell(value) {
+  if (value === undefined || value === null) return "";
+  return String(value).trim();
+}
+
+function parseBoolean(value, defaultValue = true) {
+  const normalized = sanitizeCell(value).toLowerCase();
+  if (!normalized) return defaultValue;
+  if (["true", "1", "yes", "y"].includes(normalized)) return true;
+  if (["false", "0", "no", "n"].includes(normalized)) return false;
+  return defaultValue;
+}
+
+function parseCsv(text) {
+  const rows = [];
+  let row = [];
+  let cell = "";
+  let inQuotes = false;
+  for (let i = 0; i < text.length; i += 1) {
+    const char = text[i];
+    const next = text[i + 1];
+
+    if (char === '"' && inQuotes && next === '"') {
+      cell += '"';
+      i += 1;
+      continue;
+    }
+    if (char === '"') {
+      inQuotes = !inQuotes;
+      continue;
+    }
+    if (char === "," && !inQuotes) {
+      row.push(cell);
+      cell = "";
+      continue;
+    }
+    if ((char === "\n" || char === "\r") && !inQuotes) {
+      if (char === "\r" && next === "\n") i += 1;
+      row.push(cell);
+      if (row.some((value) => sanitizeCell(value) !== "")) {
+        rows.push(row.map((value) => sanitizeCell(value)));
+      }
+      row = [];
+      cell = "";
+      continue;
+    }
+    cell += char;
+  }
+
+  if (cell.length > 0 || row.length > 0) {
+    row.push(cell);
+    if (row.some((value) => sanitizeCell(value) !== "")) {
+      rows.push(row.map((value) => sanitizeCell(value)));
+    }
+  }
+
+  if (!rows.length) return [];
+  const headers = rows[0].map((header) => sanitizeCell(header));
+  return rows.slice(1).map((values) => {
+    const record = {};
+    headers.forEach((header, index) => {
+      if (header) record[header] = sanitizeCell(values[index] ?? "");
+    });
+    return record;
+  });
 }
 
 async function fetchJson(path) {
@@ -39,40 +127,187 @@ async function fetchJson(path) {
     response = await fetch(path);
   } catch (_error) {
     if (window.location.protocol === "file:") {
-      throw new Error(
+      throw createError(
+        "FILE_PROTOCOL",
         "Stai aprendo index.html direttamente dal file system. Avvia un server locale (es. `python3 -m http.server`) oppure usa GitHub Pages."
       );
     }
-    throw new Error(`Errore di rete durante il caricamento di ${path}`);
+    throw createError("NETWORK", `Errore di rete durante il caricamento di ${path}`);
   }
   if (!response.ok) {
-    throw new Error(`Errore caricamento: ${path}`);
+    throw createError("NETWORK", `Errore caricamento: ${path}`);
   }
   try {
     return await response.json();
   } catch (_error) {
-    throw new Error(`JSON non valido: ${path}`);
+    throw createError("INVALID_JSON", `JSON non valido: ${path}`);
   }
+}
+
+async function fetchText(path) {
+  let response;
+  try {
+    response = await fetch(path);
+  } catch (_error) {
+    if (window.location.protocol === "file:") {
+      throw createError(
+        "FILE_PROTOCOL",
+        "Stai aprendo index.html direttamente dal file system. Avvia un server locale (es. `python3 -m http.server`) oppure usa GitHub Pages."
+      );
+    }
+    throw createError("NETWORK", `Impossibile raggiungere ${path}`);
+  }
+  if (!response.ok) {
+    throw createError("NETWORK", `Risposta non valida da ${path}`);
+  }
+  return response.text();
+}
+
+async function loadCsv(path) {
+  const text = await fetchText(path);
+  const rows = parseCsv(text);
+  if (!Array.isArray(rows) || rows.length === 0) {
+    throw createError("INVALID_DATA", "CSV vuoto o non valido.");
+  }
+  return rows;
+}
+
+function normalizePlayer(rawPlayer) {
+  const id = sanitizeCell(rawPlayer.id).toLowerCase();
+  const name = sanitizeCell(rawPlayer.name);
+  const ratingRaw = sanitizeCell(rawPlayer.initialRating);
+  const initialRating = ratingRaw ? Number(ratingRaw) : DEFAULT_RATING;
+
+  if (!id || !name || Number.isNaN(initialRating)) {
+    throw createError(
+      "INVALID_DATA",
+      "Alcuni dati del Google Sheet non sono validi. Controlla id, name e initialRating dei giocatori."
+    );
+  }
+
+  return {
+    id,
+    name,
+    nickname: sanitizeCell(rawPlayer.nickname) || undefined,
+    avatar: sanitizeCell(rawPlayer.avatar) || undefined,
+    initialRating,
+    hand: sanitizeCell(rawPlayer.hand) || undefined,
+    favoriteSurface: sanitizeCell(rawPlayer.favoriteSurface) || undefined,
+    active: parseBoolean(rawPlayer.active, true),
+  };
+}
+
+function normalizeMatch(rawMatch) {
+  const id = sanitizeCell(rawMatch.id);
+  const date = sanitizeCell(rawMatch.date);
+  const playerA = sanitizeCell(rawMatch.playerA).toLowerCase();
+  const playerB = sanitizeCell(rawMatch.playerB).toLowerCase();
+  const winner = sanitizeCell(rawMatch.winner).toLowerCase();
+  const score = sanitizeCell(rawMatch.score);
+
+  if (!id || !date || !playerA || !playerB || !winner || !score) {
+    throw createError(
+      "INVALID_DATA",
+      "Alcuni dati del Google Sheet non sono validi. Controlla partite e colonne obbligatorie."
+    );
+  }
+
+  return {
+    id,
+    date,
+    playerA,
+    playerB,
+    winner,
+    score,
+    surface: sanitizeCell(rawMatch.surface) || undefined,
+    location: sanitizeCell(rawMatch.location) || undefined,
+    notes: sanitizeCell(rawMatch.notes) || undefined,
+    format: sanitizeCell(rawMatch.format) || undefined,
+    tournament: sanitizeCell(rawMatch.tournament) || undefined,
+  };
+}
+
+function normalizePlayers(rawPlayers) {
+  if (!Array.isArray(rawPlayers)) {
+    throw createError("INVALID_DATA", "Players non è un array valido.");
+  }
+  return rawPlayers.map(normalizePlayer);
+}
+
+function normalizeMatches(rawMatches) {
+  if (!Array.isArray(rawMatches)) {
+    throw createError("INVALID_DATA", "Matches non è un array valido.");
+  }
+  return rawMatches.map(normalizeMatch);
+}
+
+async function loadLocalJsonData() {
+  const fallbackConfig = CONFIG.fallback ?? {};
+  const playersPath = fallbackConfig.playersJsonUrl ?? "./data/players.json";
+  const matchesPath = fallbackConfig.matchesJsonUrl ?? "./data/matches.json";
+  const [players, matches] = await Promise.all([fetchJson(playersPath), fetchJson(matchesPath)]);
+  return {
+    players: normalizePlayers(players),
+    matches: normalizeMatches(matches),
+    source: "local-json",
+  };
+}
+
+async function loadGoogleSheetData() {
+  const playersCsvUrl = sanitizeCell(CONFIG.googleSheet?.playersCsvUrl);
+  const matchesCsvUrl = sanitizeCell(CONFIG.googleSheet?.matchesCsvUrl);
+  if (!playersCsvUrl || !matchesCsvUrl || playersCsvUrl.includes("PASTE_") || matchesCsvUrl.includes("PASTE_")) {
+    throw createError(
+      "MISSING_CONFIG",
+      "URL CSV non configurati. Imposta playersCsvUrl e matchesCsvUrl in config.js."
+    );
+  }
+
+  const [playersRaw, matchesRaw] = await Promise.all([loadCsv(playersCsvUrl), loadCsv(matchesCsvUrl)]);
+  return {
+    players: normalizePlayers(playersRaw),
+    matches: normalizeMatches(matchesRaw),
+    source: "google-sheet",
+  };
+}
+
+async function loadLeagueData() {
+  if (CONFIG.dataSource === "google-sheet") {
+    try {
+      return await loadGoogleSheetData();
+    } catch (error) {
+      const fallbackEnabled = Boolean(CONFIG.fallback?.enabled);
+      if (!fallbackEnabled) throw error;
+      const fallbackData = await loadLocalJsonData();
+      setStatus(
+        "Dati Google Sheet non disponibili. Sto mostrando l’ultima versione locale disponibile.",
+        "info"
+      );
+      return fallbackData;
+    }
+  }
+
+  return loadLocalJsonData();
 }
 
 function validatePlayers(players) {
   if (!Array.isArray(players) || players.length === 0) {
-    throw new Error("Nessun giocatore disponibile in players.json.");
+    throw createError("INVALID_DATA", "Nessun giocatore disponibile.");
   }
   const ids = new Set();
   for (const player of players) {
     if (!player?.id || !player?.name) {
-      throw new Error("Ogni giocatore deve avere id e name.");
+      throw createError("INVALID_DATA", "Ogni giocatore deve avere id e name.");
     }
     if (ids.has(player.id)) {
-      throw new Error(`ID giocatore duplicato: ${player.id}`);
+      throw createError("INVALID_DATA", `ID giocatore duplicato: ${player.id}`);
     }
     ids.add(player.id);
     if (
       player.initialRating !== undefined &&
       (typeof player.initialRating !== "number" || Number.isNaN(player.initialRating))
     ) {
-      throw new Error(`initialRating non valido per ${player.id}`);
+      throw createError("INVALID_DATA", `initialRating non valido per ${player.id}`);
     }
   }
 }
@@ -81,8 +316,11 @@ function validateMatch(match) {
   const requiredFields = ["id", "date", "playerA", "playerB", "winner", "score"];
   for (const field of requiredFields) {
     if (!match?.[field]) {
-      throw new Error(`Partita non valida: campo "${field}" mancante.`);
+      throw createError("INVALID_DATA", `Partita non valida: campo "${field}" mancante.`);
     }
+  }
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(match.date)) {
+    throw createError("INVALID_DATA", `Partita ${match.id}: formato data non valido (YYYY-MM-DD).`);
   }
 }
 
@@ -178,9 +416,7 @@ function computeRivalry(processedMatches) {
   }
   let best = null;
   for (const [pair, count] of pairs.entries()) {
-    if (!best || count > best.count) {
-      best = { pair, count };
-    }
+    if (!best || count > best.count) best = { pair, count };
   }
   return best;
 }
@@ -362,7 +598,7 @@ function renderEmptyState() {
 function parseAndCompute(players, matches) {
   validatePlayers(players);
   if (!Array.isArray(matches)) {
-    throw new Error("matches.json deve essere un array.");
+    throw createError("INVALID_DATA", "Matches deve essere un array.");
   }
 
   const playerById = createInitialStats(players);
@@ -376,10 +612,10 @@ function parseAndCompute(players, matches) {
     const playerAStats = playerById.get(match.playerA);
     const playerBStats = playerById.get(match.playerB);
     if (!playerAStats || !playerBStats) {
-      throw new Error(`Partita ${match.id}: playerA/playerB non presenti in players.json.`);
+      throw createError("INVALID_DATA", `Partita ${match.id}: playerA/playerB non presenti in players.`);
     }
     if (match.winner !== match.playerA && match.winner !== match.playerB) {
-      throw new Error(`Partita ${match.id}: winner non valido.`);
+      throw createError("INVALID_DATA", `Partita ${match.id}: winner non valido.`);
     }
     if (i === sortedMatches.length - 1) {
       const snapshot = [...playerById.values()].sort(rankingSort);
@@ -394,17 +630,45 @@ function parseAndCompute(players, matches) {
     player.previousPosition = previousPositionById.get(player.id) ?? null;
   });
 
-  return { ranking, processedMatches, playerById };
+  const visibleRanking = ranking.filter((player) => player.active !== false);
+  visibleRanking.forEach((player, index) => {
+    player.position = index + 1;
+  });
+
+  return { ranking: visibleRanking, processedMatches, playerById };
+}
+
+function clearUi() {
+  if (elements.heroStats) elements.heroStats.innerHTML = "";
+  if (elements.podium) elements.podium.innerHTML = "";
+  if (elements.rankingBody) elements.rankingBody.innerHTML = "";
+  if (elements.playerCards) elements.playerCards.innerHTML = "";
+  if (elements.latestMatches) elements.latestMatches.innerHTML = "";
+  if (elements.highlights) elements.highlights.innerHTML = "";
+}
+
+function toUiErrorMessage(error) {
+  const details = error instanceof Error ? error.message : "";
+  const code = error?.code;
+  if (code === "NETWORK" || code === "MISSING_CONFIG" || code === "FILE_PROTOCOL") {
+    return details
+      ? `Impossibile caricare i dati da Google Sheet. La classifica potrebbe non essere aggiornata. (${details})`
+      : "Impossibile caricare i dati da Google Sheet. La classifica potrebbe non essere aggiornata.";
+  }
+  if (code === "INVALID_DATA" || code === "INVALID_JSON") {
+    return details
+      ? `Alcuni dati del Google Sheet non sono validi. Controlla nomi giocatori, vincitore e formato delle date. (${details})`
+      : "Alcuni dati del Google Sheet non sono validi. Controlla nomi giocatori, vincitore e formato delle date.";
+  }
+  return details
+    ? `Impossibile caricare i dati della lega. (${details})`
+    : "Impossibile caricare i dati della lega.";
 }
 
 async function main() {
   clearStatus();
   try {
-    const [players, matches] = await Promise.all([
-      fetchJson("./data/players.json"),
-      fetchJson("./data/matches.json"),
-    ]);
-
+    const { players, matches } = await loadLeagueData();
     const { ranking, processedMatches, playerById } = parseAndCompute(players, matches);
     renderHero(ranking, processedMatches);
     renderPodium(ranking);
@@ -415,7 +679,7 @@ async function main() {
 
     if (processedMatches.length === 0) {
       setStatus(
-        "La stagione non è ancora iniziata. Aggiungi la prima partita in matches.json per accendere la classifica.",
+        "La stagione non è ancora iniziata. Aggiungi la prima partita in matches (Sheet o JSON) per accendere la classifica.",
         "info"
       );
       renderEmptyState();
@@ -423,16 +687,8 @@ async function main() {
 
     elements.lastUpdate.textContent = new Date().toLocaleDateString("it-IT");
   } catch (error) {
-    const fallbackMessage =
-      "Impossibile caricare i dati della lega. Controlla che players.json e matches.json siano presenti e validi.";
-    const details = error instanceof Error ? error.message : "";
-    setStatus(details ? `${fallbackMessage} (${details})` : fallbackMessage, "error");
-    if (elements.heroStats) elements.heroStats.innerHTML = "";
-    if (elements.podium) elements.podium.innerHTML = "";
-    if (elements.rankingBody) elements.rankingBody.innerHTML = "";
-    if (elements.playerCards) elements.playerCards.innerHTML = "";
-    if (elements.latestMatches) elements.latestMatches.innerHTML = "";
-    if (elements.highlights) elements.highlights.innerHTML = "";
+    setStatus(toUiErrorMessage(error), "error");
+    clearUi();
     console.error(error);
   }
 }
