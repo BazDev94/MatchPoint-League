@@ -34,7 +34,17 @@ function clearStatus() {
 }
 
 async function fetchJson(path) {
-  const response = await fetch(path);
+  let response;
+  try {
+    response = await fetch(path);
+  } catch (_error) {
+    if (window.location.protocol === "file:") {
+      throw new Error(
+        "Stai aprendo index.html direttamente dal file system. Avvia un server locale (es. `python3 -m http.server`) oppure usa GitHub Pages."
+      );
+    }
+    throw new Error(`Errore di rete durante il caricamento di ${path}`);
+  }
   if (!response.ok) {
     throw new Error(`Errore caricamento: ${path}`);
   }
@@ -251,6 +261,7 @@ function renderRanking(playersStats) {
 }
 
 function renderPlayerCards(playersStats) {
+  if (!elements.playerCards) return;
   elements.playerCards.innerHTML = playersStats
     .map((player) => {
       const winRate = player.matches ? ((player.wins / player.matches) * 100).toFixed(0) : "0";
@@ -412,16 +423,16 @@ async function main() {
 
     elements.lastUpdate.textContent = new Date().toLocaleDateString("it-IT");
   } catch (error) {
-    setStatus(
-      "Impossibile caricare i dati della lega. Controlla che players.json e matches.json siano presenti e validi.",
-      "error"
-    );
-    elements.heroStats.innerHTML = "";
-    elements.podium.innerHTML = "";
-    elements.rankingBody.innerHTML = "";
-    elements.playerCards.innerHTML = "";
-    elements.latestMatches.innerHTML = "";
-    elements.highlights.innerHTML = "";
+    const fallbackMessage =
+      "Impossibile caricare i dati della lega. Controlla che players.json e matches.json siano presenti e validi.";
+    const details = error instanceof Error ? error.message : "";
+    setStatus(details ? `${fallbackMessage} (${details})` : fallbackMessage, "error");
+    if (elements.heroStats) elements.heroStats.innerHTML = "";
+    if (elements.podium) elements.podium.innerHTML = "";
+    if (elements.rankingBody) elements.rankingBody.innerHTML = "";
+    if (elements.playerCards) elements.playerCards.innerHTML = "";
+    if (elements.latestMatches) elements.latestMatches.innerHTML = "";
+    if (elements.highlights) elements.highlights.innerHTML = "";
     console.error(error);
   }
 }

@@ -69,3 +69,14 @@ Add Marco vs Luca result
    - **Branch:** `main`
    - **Folder:** `/root`
 3. Salva e attendi l’URL pubblico.
+
+## Preview locale (importante)
+
+Per leggere i file JSON il browser richiede un server HTTP. Non aprire `index.html` con doppio click (`file://`).
+
+```bash
+cd /percorso/progetto
+python3 -m http.server 8080
+```
+
+Poi apri `http://localhost:8080`.
