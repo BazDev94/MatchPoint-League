@@ -85,6 +85,8 @@ id,date,playerA,playerB,winner,score,surface,location,notes,format,tournament
 
 Obbligatorie: `id`, `date`, `playerA`, `playerB`, `winner`, `score`.
 
+Se il tab `matches` è vuoto (solo header), il sito mostra correttamente stagione non iniziata.
+
 ## Aggiungere una nuova partita
 
 Con `dataSource: "google-sheet"`:

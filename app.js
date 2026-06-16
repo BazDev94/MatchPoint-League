@@ -163,10 +163,14 @@ async function fetchText(path) {
   return response.text();
 }
 
-async function loadCsv(path) {
+async function loadCsv(path, options = {}) {
+  const { allowEmpty = false } = options;
   const text = await fetchText(path);
   const rows = parseCsv(text);
-  if (!Array.isArray(rows) || rows.length === 0) {
+  if (!Array.isArray(rows)) {
+    throw createError("INVALID_DATA", "CSV non valido.");
+  }
+  if (!allowEmpty && rows.length === 0) {
     throw createError("INVALID_DATA", "CSV vuoto o non valido.");
   }
   return rows;
@@ -263,7 +267,10 @@ async function loadGoogleSheetData() {
     );
   }
 
-  const [playersRaw, matchesRaw] = await Promise.all([loadCsv(playersCsvUrl), loadCsv(matchesCsvUrl)]);
+  const [playersRaw, matchesRaw] = await Promise.all([
+    loadCsv(playersCsvUrl),
+    loadCsv(matchesCsvUrl, { allowEmpty: true }),
+  ]);
   return {
     players: normalizePlayers(playersRaw),
     matches: normalizeMatches(matchesRaw),
