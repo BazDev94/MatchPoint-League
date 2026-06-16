@@ -2,8 +2,10 @@ window.CONFIG = {
   dataSource: "google-sheet",
 
   googleSheet: {
-    playersCsvUrl: "PASTE_PLAYERS_CSV_URL_HERE",
-    matchesCsvUrl: "PASTE_MATCHES_CSV_URL_HERE",
+    playersCsvUrl:
+      "https://docs.google.com/spreadsheets/d/1m5vHG6Ntd0_dZqJL5kfTOHgeJoUbsx1uflvjpyI8NC4/gviz/tq?tqx=out:csv&sheet=players",
+    matchesCsvUrl:
+      "https://docs.google.com/spreadsheets/d/1m5vHG6Ntd0_dZqJL5kfTOHgeJoUbsx1uflvjpyI8NC4/gviz/tq?tqx=out:csv&sheet=manches",
   },
 
   fallback: {
