@@ -9,7 +9,7 @@ window.CONFIG = {
   },
 
   fallback: {
-    enabled: true,
+    enabled: false,
     playersJsonUrl: "./data/players.json",
     matchesJsonUrl: "./data/matches.json",
   },
