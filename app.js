@@ -231,6 +231,16 @@ function normalizeMatch(rawMatch) {
   };
 }
 
+function isPlaceholderMatchRow(rawMatch) {
+  const id = sanitizeCell(rawMatch.id);
+  const date = sanitizeCell(rawMatch.date);
+  const playerA = sanitizeCell(rawMatch.playerA);
+  const playerB = sanitizeCell(rawMatch.playerB);
+  const winner = sanitizeCell(rawMatch.winner);
+  const score = sanitizeCell(rawMatch.score);
+  return Boolean(id) && !date && !playerA && !playerB && !winner && !score;
+}
+
 function normalizePlayers(rawPlayers) {
   if (!Array.isArray(rawPlayers)) {
     throw createError("INVALID_DATA", "Players non è un array valido.");
@@ -242,7 +252,7 @@ function normalizeMatches(rawMatches) {
   if (!Array.isArray(rawMatches)) {
     throw createError("INVALID_DATA", "Matches non è un array valido.");
   }
-  return rawMatches.map(normalizeMatch);
+  return rawMatches.filter((row) => !isPlaceholderMatchRow(row)).map(normalizeMatch);
 }
 
 async function loadLocalJsonData() {

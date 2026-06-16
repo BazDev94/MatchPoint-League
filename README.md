@@ -86,6 +86,7 @@ id,date,playerA,playerB,winner,score,surface,location,notes,format,tournament
 Obbligatorie: `id`, `date`, `playerA`, `playerB`, `winner`, `score`.
 
 Se il tab `matches` è vuoto (solo header), il sito mostra correttamente stagione non iniziata.
+Anche eventuali righe placeholder con solo `id` e campi match vuoti vengono ignorate automaticamente.
 
 ## Aggiungere una nuova partita
 
