@@ -1,0 +1,405 @@
+:root {
+  --bg: #070a12;
+  --surface: #111827;
+  --surface-glass: rgba(255, 255, 255, 0.08);
+  --accent: #c7ff00;
+  --accent-secondary: #00e5ff;
+  --text: #f8fafc;
+  --muted: #94a3b8;
+  --danger: #ff4d6d;
+  --success: #22c55e;
+  --gold: #ffd700;
+  --silver: #c0c0c0;
+  --bronze: #cd7f32;
+  --border: rgba(255, 255, 255, 0.12);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  line-height: 1.5;
+}
+
+h1,
+h2,
+h3 {
+  font-family: "Sora", sans-serif;
+  margin: 0;
+}
+
+h2 {
+  margin: 2rem 0 1rem;
+  font-size: 1.3rem;
+}
+
+.container {
+  width: min(1120px, 92%);
+  margin: 1.5rem auto 3rem;
+  position: relative;
+  z-index: 1;
+}
+
+.bg-glow {
+  position: fixed;
+  width: 40vmax;
+  height: 40vmax;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.15;
+  z-index: 0;
+}
+
+.bg-glow-a {
+  top: -8rem;
+  left: -8rem;
+  background: var(--accent);
+}
+
+.bg-glow-b {
+  bottom: -8rem;
+  right: -8rem;
+  background: var(--accent-secondary);
+}
+
+.card,
+.table-wrap {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.03));
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+}
+
+.hero {
+  padding: 1.4rem;
+}
+
+.hero-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.logo {
+  width: 46px;
+  height: 46px;
+}
+
+.chip {
+  background: rgba(199, 255, 0, 0.12);
+  color: var(--accent);
+  border: 1px solid rgba(199, 255, 0, 0.35);
+  border-radius: 999px;
+  padding: 0.25rem 0.7rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.hero h1 {
+  margin-top: 0.8rem;
+  font-size: clamp(2rem, 8vw, 3.2rem);
+}
+
+.hero-copy {
+  color: var(--muted);
+  margin: 0.6rem 0 1.2rem;
+  max-width: 44ch;
+}
+
+.hero-stats {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.7rem;
+}
+
+.stat {
+  background: rgba(17, 24, 39, 0.7);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 0.65rem 0.85rem;
+}
+
+.stat-label {
+  display: block;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.stat-value {
+  font-weight: 800;
+}
+
+.podium {
+  display: grid;
+  gap: 1rem;
+}
+
+.podium-card {
+  padding: 1rem;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: rgba(17, 24, 39, 0.85);
+}
+
+.podium-rank {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.podium-rank em {
+  font-style: normal;
+  font-weight: 800;
+}
+
+.podium-card.gold .podium-rank em {
+  color: var(--gold);
+}
+
+.podium-card.silver .podium-rank em {
+  color: var(--silver);
+}
+
+.podium-card.bronze .podium-rank em {
+  color: var(--bronze);
+}
+
+.podium-name {
+  margin-top: 0.35rem;
+  font-size: 1.2rem;
+}
+
+.podium-meta {
+  color: var(--muted);
+  margin-top: 0.35rem;
+  font-size: 0.9rem;
+}
+
+.table-wrap {
+  overflow-x: auto;
+  padding: 0.5rem;
+}
+
+.ranking-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 650px;
+}
+
+.ranking-table th,
+.ranking-table td {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+  font-size: 0.92rem;
+}
+
+.ranking-table th {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.up {
+  color: var(--success);
+}
+
+.down {
+  color: var(--danger);
+}
+
+.cards-grid {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.players-grid {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.player-card {
+  padding: 1rem;
+}
+
+.player-head {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+}
+
+.player-name {
+  margin: 0;
+}
+
+.player-sub {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
+.player-grid {
+  margin-top: 0.75rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.mini {
+  background: rgba(17, 24, 39, 0.7);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0.45rem 0.6rem;
+}
+
+.mini-label {
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.mini-value {
+  font-weight: 700;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.match-card {
+  padding: 1rem;
+}
+
+.match-title {
+  margin: 0 0 0.2rem;
+}
+
+.match-sub {
+  color: var(--muted);
+  margin: 0 0 0.6rem;
+  font-size: 0.88rem;
+}
+
+.highlights-grid {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.highlight-card {
+  padding: 1rem;
+}
+
+.highlight-title {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.highlight-value {
+  font-weight: 800;
+  font-size: 1.1rem;
+}
+
+.footer {
+  border-top: 1px solid rgba(148, 163, 184, 0.15);
+  padding: 1.5rem 1rem 2rem;
+  color: var(--muted);
+  text-align: center;
+}
+
+.footer a {
+  color: var(--accent-secondary);
+}
+
+.status-banner {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  max-width: 1120px;
+  margin: 0 auto;
+  border-radius: 12px 12px 0 0;
+  padding: 0.75rem 1rem;
+  display: none;
+  font-weight: 600;
+}
+
+.status-banner.show {
+  display: block;
+}
+
+.status-banner.error {
+  background: rgba(255, 77, 109, 0.14);
+  border: 1px solid rgba(255, 77, 109, 0.45);
+  color: #ffdbe2;
+}
+
+.status-banner.info {
+  background: rgba(0, 229, 255, 0.14);
+  border: 1px solid rgba(0, 229, 255, 0.35);
+  color: #e2fcff;
+}
+
+.empty-state {
+  padding: 1.2rem;
+}
+
+@media (min-width: 768px) {
+  .hero {
+    padding: 2rem;
+  }
+
+  .hero-stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .podium {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: end;
+  }
+
+  .podium-card.gold {
+    order: 2;
+    transform: scale(1.05);
+  }
+
+  .podium-card.silver {
+    order: 1;
+  }
+
+  .podium-card.bronze {
+    order: 3;
+  }
+
+  .cards-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .players-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .highlights-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .cards-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .players-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}

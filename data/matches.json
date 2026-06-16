@@ -1,0 +1,75 @@
+[
+  {
+    "id": "match-001",
+    "date": "2026-05-12",
+    "playerA": "marco",
+    "playerB": "luca",
+    "winner": "marco",
+    "score": "6-4 3-6 10-8",
+    "surface": "hard",
+    "notes": "Super tie-break finale"
+  },
+  {
+    "id": "match-002",
+    "date": "2026-05-18",
+    "playerA": "giulia",
+    "playerB": "andrea",
+    "winner": "giulia",
+    "score": "6-3 6-4",
+    "surface": "clay"
+  },
+  {
+    "id": "match-003",
+    "date": "2026-05-21",
+    "playerA": "sara",
+    "playerB": "davide",
+    "winner": "davide",
+    "score": "4-6 6-2 10-7",
+    "surface": "hard"
+  },
+  {
+    "id": "match-004",
+    "date": "2026-05-28",
+    "playerA": "marco",
+    "playerB": "giulia",
+    "winner": "giulia",
+    "score": "7-6 4-6 10-6",
+    "surface": "hard"
+  },
+  {
+    "id": "match-005",
+    "date": "2026-06-02",
+    "playerA": "luca",
+    "playerB": "andrea",
+    "winner": "luca",
+    "score": "6-2 6-2",
+    "surface": "clay"
+  },
+  {
+    "id": "match-006",
+    "date": "2026-06-06",
+    "playerA": "sara",
+    "playerB": "marco",
+    "winner": "marco",
+    "score": "6-1 6-4",
+    "surface": "hard"
+  },
+  {
+    "id": "match-007",
+    "date": "2026-06-10",
+    "playerA": "davide",
+    "playerB": "luca",
+    "winner": "davide",
+    "score": "3-6 6-4 10-5",
+    "surface": "hard"
+  },
+  {
+    "id": "match-008",
+    "date": "2026-06-14",
+    "playerA": "giulia",
+    "playerB": "sara",
+    "winner": "sara",
+    "score": "6-4 5-7 10-8",
+    "surface": "grass"
+  }
+]

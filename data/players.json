@@ -1,0 +1,56 @@
+[
+  {
+    "id": "marco",
+    "name": "Marco",
+    "nickname": "The Hammer",
+    "avatar": "assets/avatars/marco.svg",
+    "initialRating": 1500,
+    "hand": "right",
+    "favoriteSurface": "hard"
+  },
+  {
+    "id": "luca",
+    "name": "Luca",
+    "nickname": "Baseline Beast",
+    "avatar": "assets/avatars/luca.svg",
+    "initialRating": 1500,
+    "hand": "left",
+    "favoriteSurface": "clay"
+  },
+  {
+    "id": "giulia",
+    "name": "Giulia",
+    "nickname": "Ice Serve",
+    "avatar": "assets/avatars/giulia.svg",
+    "initialRating": 1500,
+    "hand": "right",
+    "favoriteSurface": "hard"
+  },
+  {
+    "id": "andrea",
+    "name": "Andrea",
+    "nickname": "Spin Doctor",
+    "avatar": "assets/avatars/andrea.svg",
+    "initialRating": 1500,
+    "hand": "right",
+    "favoriteSurface": "clay"
+  },
+  {
+    "id": "sara",
+    "name": "Sara",
+    "nickname": "Drop Shot Queen",
+    "avatar": "assets/avatars/sara.svg",
+    "initialRating": 1500,
+    "hand": "left",
+    "favoriteSurface": "grass"
+  },
+  {
+    "id": "davide",
+    "name": "Davide",
+    "nickname": "No Mercy",
+    "avatar": "assets/avatars/davide.svg",
+    "initialRating": 1500,
+    "hand": "right",
+    "favoriteSurface": "hard"
+  }
+]

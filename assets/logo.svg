@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title">
+  <title>Court Kings Logo</title>
+  <defs>
+    <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#c7ff00"/>
+      <stop offset="100%" stop-color="#00e5ff"/>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="112" height="112" rx="24" fill="#111827" stroke="url(#g1)" stroke-width="6"/>
+  <circle cx="64" cy="64" r="24" fill="none" stroke="#c7ff00" stroke-width="6"/>
+  <path d="M16 64h96M64 16v96" stroke="#00e5ff" stroke-width="5" opacity="0.75"/>
+</svg>

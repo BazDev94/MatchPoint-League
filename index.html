@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Court Kings — Tennis Friends Ranking</title>
+    <meta
+      name="description"
+      content="Classifica tennis tra amici basata su ranking Elo, risultati e statistiche."
+    />
+    <meta property="og:title" content="Court Kings" />
+    <meta
+      property="og:description"
+      content="La classifica ufficiale delle nostre partite di tennis."
+    />
+    <meta property="og:type" content="website" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <div class="bg-glow bg-glow-a" aria-hidden="true"></div>
+    <div class="bg-glow bg-glow-b" aria-hidden="true"></div>
+
+    <main id="app" class="container">
+      <header class="hero card">
+        <div class="hero-header">
+          <img src="./assets/logo.svg" alt="Court Kings logo" class="logo" />
+          <span class="chip">Elo Live Ranking</span>
+        </div>
+        <h1>Court Kings</h1>
+        <p class="hero-copy">
+          La classifica ufficiale delle nostre battaglie sul campo.
+        </p>
+        <div class="hero-stats" id="heroStats"></div>
+      </header>
+
+      <section aria-labelledby="podio-title">
+        <h2 id="podio-title">Podio</h2>
+        <div id="podium" class="podium"></div>
+      </section>
+
+      <section aria-labelledby="ranking-title">
+        <h2 id="ranking-title">Classifica completa</h2>
+        <div class="table-wrap card">
+          <table class="ranking-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Player</th>
+                <th>Rating</th>
+                <th>+/-</th>
+                <th>W</th>
+                <th>L</th>
+                <th>Win Rate</th>
+                <th>Streak</th>
+              </tr>
+            </thead>
+            <tbody id="rankingBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section aria-labelledby="players-title">
+        <h2 id="players-title">Schede giocatore</h2>
+        <div id="playerCards" class="players-grid"></div>
+      </section>
+
+      <section aria-labelledby="matches-title">
+        <h2 id="matches-title">Ultime partite</h2>
+        <div id="latestMatches" class="cards-grid"></div>
+      </section>
+
+      <section aria-labelledby="highlights-title">
+        <h2 id="highlights-title">Highlights</h2>
+        <div id="highlights" class="highlights-grid"></div>
+      </section>
+    </main>
+
+    <div id="statusBanner" class="status-banner" role="status" aria-live="polite"></div>
+
+    <footer class="footer">
+      <p><strong>Court Kings</strong> · Last update: <span id="lastUpdate">-</span></p>
+      <p>
+        <a href="https://github.com/BazDev94/MatchPoint-League" target="_blank" rel="noreferrer"
+          >GitHub Repository</a
+        >
+      </p>
+      <p>Built for glory, rage quits and questionable line calls.</p>
+    </footer>
+
+    <template id="emptyStateTemplate">
+      <div class="card empty-state">
+        <h3>La stagione non è ancora iniziata.</h3>
+        <p>Aggiungi la prima partita in matches.json per accendere la classifica.</p>
+      </div>
+    </template>
+
+    <script src="./app.js" defer></script>
+  </body>
+</html>
